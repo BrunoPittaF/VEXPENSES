@@ -1,0 +1,24 @@
+{
+  "contacts": [
+    {
+      "picture": "",
+      "birthday": "0002-02-22",
+      "email": "caiobrunopittaf@gmail.com",
+      "enterpriseDynamic": [
+        {
+          "enterpriseD": "Estrada da Liberdade, 227"
+        }
+      ],
+      "telephoneDynamic": [
+        {
+          "telephoneD": "71991595479"
+        }
+      ],
+      "name": "Caio Bruno",
+      "lastname": "Pitta Figueiredo",
+      "enterprise": "Rua Barão de Cotegipe, 256",
+      "telephone": "71991651013",
+      "id": 1
+    }
+  ]
+}

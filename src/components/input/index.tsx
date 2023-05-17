@@ -1,17 +1,27 @@
-import { InputHTMLAttributes, ReactNode } from 'react';
+import { InputHTMLAttributes, ReactNode, useState } from 'react';
 import { Container } from './style';
+import { DotsThreeOutlineVertical } from 'phosphor-react';
 
 interface IInputProps extends InputHTMLAttributes<HTMLInputElement> {
   icon?: ReactNode;
   id: string;
+  register: any;
 }
 
-export default function Input({ icon, placeholder, id }: IInputProps) {
+export default function Input({
+  icon,
+  placeholder,
+  id,
+  type,
+  register,
+  className,
+  defaultValue,
+}: IInputProps) {
   return (
-    <Container>
+    <Container className={className}>
       {icon}
       <div className="input-group">
-        <input type="text" id={id} />
+        <input defaultValue={defaultValue} {...register(id)} type={type} id={id} />
         <label htmlFor={id}>{placeholder}</label>
       </div>
     </Container>

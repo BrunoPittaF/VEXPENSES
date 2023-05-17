@@ -64,3 +64,12 @@ export const Form = styled.form`
 
 
 `;
+
+
+export const ButtonRemove = styled.button`
+    position: absolute;
+    left: 3px;
+    top: 34%;
+
+
+`;
