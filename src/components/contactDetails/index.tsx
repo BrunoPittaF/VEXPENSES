@@ -1,17 +1,18 @@
 import Modal from 'react-modal';
-import { ButtonRemove, Container, Form, Header } from './style';
+import { ButtonRemove, Container, Form, Header, ImageContainer } from './style';
 import { Buildings, Calendar, EnvelopeSimple, Phone, UploadSimple, User } from 'phosphor-react';
 import Input from '../input';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
-import { useEffect } from 'react';
+import { useEffect, Dispatch, SetStateAction, useState } from 'react';
 
 interface IModalProps {
   isOpen: boolean;
   closeModal: () => void;
   variant: 'create' | 'edit';
   contactDetails?: IContactDetails | undefined;
+  setContacts: Dispatch<SetStateAction<IFormData[]>>;
 }
 
 interface IFormData {
@@ -21,7 +22,7 @@ interface IFormData {
   email?: string;
   telephone: string;
   birthday?: string;
-  picture?: string;
+  picture?: FileList;
   telephoneDynamic: {
     telephoneD: string;
   }[];
@@ -49,9 +50,17 @@ const addressSchema = yup.object().shape({
   name: yup.string().required(),
   lastname: yup.string(),
   enterprise: yup.string(),
-  birthday: yup.string(),
+  birthday: yup.string().max(10),
   telephone: yup.string().max(11).required(),
-  picture: yup.string(),
+  picture: yup.mixed().test('fileList', 'Selecione pelo menos um arquivo', (value: any) => {
+    if (value.length === 0) return true;
+
+    if (value && value.length) {
+      const filesArray = Array.from(value);
+      return filesArray.length > 0;
+    }
+    return false;
+  }),
 });
 
 Modal.setAppElement('#__next');
@@ -61,7 +70,10 @@ export default function ModalExample({
   closeModal,
   variant = 'create',
   contactDetails,
+  setContacts,
 }: IModalProps) {
+  const userPhoto = contactDetails?.picture ? contactDetails.picture[0] : '';
+  const [photo, setPhoto] = useState(userPhoto);
   const isEditVariant = variant === 'edit';
 
   const {
@@ -90,22 +102,16 @@ export default function ModalExample({
   });
 
   async function createContact(data: IFormData) {
-    new Date();
-    const newContact = {
-      picture: '',
-      birthday: new Date(String(data.birthday)).toString(),
-      ...data,
-    };
-
     await fetch('http://localhost:3001/contacts', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(newContact),
+      body: JSON.stringify(data),
     });
     closeModal();
+    setContacts((oldState) => [...oldState, data]);
   }
 
   const handleAddTelephoneField = () => {
@@ -124,6 +130,10 @@ export default function ModalExample({
     removeEnterprise(index);
   };
 
+  const removePhoto = () => {
+    setPhoto('');
+  };
+
   const nameElement = watch([
     'name',
     'lastname',
@@ -135,6 +145,8 @@ export default function ModalExample({
     'enterpriseDynamic',
     'telephoneDynamic',
   ]);
+
+  const hasPhoto = nameElement[6];
 
   useEffect(() => {
     if (contactDetails && contactDetails.enterpriseDynamic.length > 0) {
@@ -149,6 +161,11 @@ export default function ModalExample({
     }
   }, []);
 
+  useEffect(() => {
+    if (hasPhoto && hasPhoto[0]) {
+      setPhoto(URL.createObjectURL(hasPhoto[0]));
+    }
+  }, [hasPhoto]);
   const onSubmit = handleSubmit((data) =>
     addressSchema.isValid(data).then((valid) => {
       if (valid) {
@@ -164,6 +181,7 @@ export default function ModalExample({
       }
     })
   );
+
   return (
     <Modal isOpen={isOpen} onRequestClose={closeModal} style={customStyles}>
       <Header>
@@ -175,15 +193,26 @@ export default function ModalExample({
       </Header>
       <Container>
         <Form id="createUser" onSubmit={onSubmit}>
-          <div className="photo-group">
-            <div className="photo">
-              <label htmlFor="picture">
-                <UploadSimple size={36} color="#ffffff" weight="light" />
-              </label>
-              <input type="file" name="picture" id="picture" />
+          {photo && (
+            <ImageContainer>
+              <img src={photo} alt="Foto da galeria" />
+              <button type="button" onClick={removePhoto}>
+                Remover
+              </button>
+            </ImageContainer>
+          )}
+          {!photo && (
+            <div className="photo-group">
+              <div className="photo">
+                <label htmlFor="picture">
+                  <UploadSimple size={36} color="#ffffff" weight="light" />
+                </label>
+                <Input register={register} type="file" name="picture" id="picture" />
+              </div>
+              <label htmlFor="picture">Adicionar imagem</label>
             </div>
-            <label htmlFor="picture">Adicionar imagem</label>
-          </div>
+          )}
+
           <Input
             className={`${nameElement[0] || contactDetails ? 'filled' : ''}`}
             id="name"

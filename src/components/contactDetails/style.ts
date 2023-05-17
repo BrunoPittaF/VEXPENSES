@@ -45,7 +45,7 @@ export const Container = styled.section`
 }
 
 label {
-  color: blue;
+  color: #215990;
   font-size: 0.85rem;
 }
   }
@@ -62,6 +62,14 @@ export const Form = styled.form`
   justify-content: center;
   gap: 1rem;
 
+  .photo {
+    label + div {
+      width: 0px;
+    }
+  }
+
+  
+
 
 `;
 
@@ -71,5 +79,24 @@ export const ButtonRemove = styled.button`
     left: 3px;
     top: 34%;
 
+
+`;
+
+export const ImageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 160px;
+    height: 160px;
+    border-radius: 100%;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px;
+  }
+
+  button {
+    margin-top: 1rem;
+  }
 
 `;

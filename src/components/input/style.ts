@@ -11,7 +11,7 @@ export const Container = styled.div`
     input {
       + label {
           font-size: 0.75rem;
-          color: blue;
+          color: #215990;
           transform: translateY(-1.5rem);
           background-color: #fff;
           padding: 0px 5px;
@@ -74,11 +74,11 @@ export const Container = styled.div`
       }
 
       &:focus {
-        border-color: blue;
+        border-color: #215990;
 
         + label {
           font-size: 0.75rem;
-          color: blue;
+          color: #215990;
           transform: translateY(-1.5rem);
           background-color: #fff;
           padding: 0px 5px;

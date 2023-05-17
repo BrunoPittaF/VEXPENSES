@@ -62,7 +62,7 @@ export const ContainerCard = styled.div<IContainerCardProps>`
 
       p {
         
-      color: blue;
+      color: #215990;
       }
     
       `} 

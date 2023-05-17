@@ -12,7 +12,7 @@ interface IContactsData {
   telephone: string;
   email?: string;
   birthday?: string;
-  picture?: string;
+  picture?: FileList;
   telephoneDynamic: {
     telephoneD: string;
   }[];
@@ -60,12 +60,7 @@ export default function Home() {
   function handleSearch(value: string) {
     setSearchTerm(value);
     const filtered = contacts.filter((contact) => contact.name.toLowerCase().includes(value.toLowerCase()));
-    console.log(filteredContacts);
     setFilteredContacts(filtered);
-  }
-
-  function handleSelectContact(name: string) {
-    setSearchTerm(name);
   }
 
   return (
@@ -93,6 +88,7 @@ export default function Home() {
           variant={variantModal}
           contactDetails={activeContact}
           closeModal={closeModal}
+          setContacts={setContacts}
           isOpen={modalIsOpen}
         />
       )}
