@@ -31,30 +31,6 @@
       "birthday": "",
       "enterpriseDynamic": [],
       "telephoneDynamic": [],
-      "picture": "blob:http://localhost:3000/acea87a2-adef-4b64-bc01-330907d7839a",
-      "name": "Pinho",
-      "lastname": "",
-      "enterprise": "",
-      "telephone": "123141",
-      "id": 3
-    },
-    {
-      "email": "",
-      "birthday": "",
-      "enterpriseDynamic": [],
-      "telephoneDynamic": [],
-      "picture": "blob:http://localhost:3000/cea06ff6-f72e-4052-aec6-2af26e75f748",
-      "name": "Nessa",
-      "lastname": "",
-      "enterprise": "",
-      "telephone": "123123",
-      "id": 4
-    },
-    {
-      "email": "",
-      "birthday": "",
-      "enterpriseDynamic": [],
-      "telephoneDynamic": [],
       "name": "mozao",
       "lastname": "",
       "enterprise": "",
@@ -67,62 +43,12 @@
       "birthday": "",
       "enterpriseDynamic": [],
       "telephoneDynamic": [],
-      "name": "ultimo teste",
-      "lastname": "",
-      "enterprise": "",
-      "telephone": "1231231",
-      "picture": {},
-      "id": 6
-    },
-    {
-      "email": "",
-      "birthday": "",
-      "enterpriseDynamic": [],
-      "telephoneDynamic": [],
-      "name": "vvvvv",
-      "lastname": "",
-      "enterprise": "",
-      "telephone": "1231231",
-      "picture": {
-        "0": {}
-      },
-      "id": 7
-    },
-    {
-      "email": "",
-      "birthday": "",
-      "enterpriseDynamic": [],
-      "telephoneDynamic": [],
-      "name": "zzzzzz",
-      "lastname": "",
-      "enterprise": "",
-      "telephone": "1231",
-      "picture": {},
-      "id": 8
-    },
-    {
-      "email": "",
-      "birthday": "",
-      "enterpriseDynamic": [],
-      "telephoneDynamic": [],
       "picture": "",
       "name": "asdasdasd",
       "lastname": "",
       "enterprise": "",
       "telephone": "123123",
       "id": 9
-    },
-    {
-      "email": "",
-      "birthday": "",
-      "enterpriseDynamic": [],
-      "telephoneDynamic": [],
-      "picture": "blob:http://localhost:3000/65ca1fc8-0737-4517-854a-4d9cc3d7a1b9",
-      "name": "123123131",
-      "lastname": "",
-      "enterprise": "",
-      "telephone": "123123",
-      "id": 10
     }
   ]
 }

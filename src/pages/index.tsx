@@ -15,12 +15,16 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredContacts, setFilteredContacts] = useState<IFormServer[]>([]);
 
-  function handleDeleteContact(idContact: number) {
+  async function handleDeleteContact(idContact: number) {
     try {
       deleteContact(idContact);
       toast.success('Contato deletado com sucesso', {
         autoClose: 3000,
       });
+      const contactList = await getContactList();
+      if (!contactList) return;
+      setContacts(contactList);
+      setFilteredContacts(contactList);
     } catch (error) {
       toast.warn('Usuário não pode ser deletado', {
         autoClose: 3000,

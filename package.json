@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && next start",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "local": "concurrently \"next dev\" \"json-server --watch db.json --port 3001\"",
+    "server": "json-server --watch db.json --port 3001"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.1.0",
