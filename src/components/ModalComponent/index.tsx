@@ -1,38 +1,21 @@
 import Modal from 'react-modal';
 import { ButtonRemove, Container, Form, Header, ImageContainer } from './style';
 import { Buildings, Calendar, EnvelopeSimple, Phone, UploadSimple, User } from 'phosphor-react';
-import Input from '../input';
+import Input from '../Input';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { toast } from 'react-toastify';
-import { useEffect, Dispatch, SetStateAction, useState } from 'react';
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { createContact, editContact } from '@/services/contacts';
+import { IFormData, IFormServer } from '@/interfaces';
 
 interface IModalProps {
   isOpen: boolean;
   closeModal: () => void;
   variant: 'create' | 'edit';
-  contactDetails?: IContactDetails | undefined;
-  setContacts: Dispatch<SetStateAction<IFormData[]>>;
-}
-
-interface IFormData {
-  name: string;
-  lastname?: string;
-  enterprise?: string;
-  email?: string;
-  telephone: string;
-  birthday?: string;
-  picture?: FileList;
-  telephoneDynamic: {
-    telephoneD: string;
-  }[];
-  enterpriseDynamic: {
-    enterpriseD: string;
-  }[];
-}
-
-interface IContactDetails extends IFormData {
-  id?: number;
+  contactDetails?: IFormServer | undefined;
 }
 
 const customStyles = {
@@ -41,19 +24,19 @@ const customStyles = {
     left: '0',
     right: '0',
     bottom: '0',
-    padding: '10px 8px',
+    padding: '12px',
   },
 };
 
-const addressSchema = yup.object().shape({
-  email: yup.string().email(),
-  name: yup.string().required(),
+const contactSchema = yup.object().shape({
+  email: yup.string().email('Email inválido'),
+  name: yup.string().required('Campo obrigatório'),
   lastname: yup.string(),
   enterprise: yup.string(),
   birthday: yup.string().max(10),
-  telephone: yup.string().max(11).required(),
+  telephone: yup.string().max(11).required('Campo obrigatório'),
   picture: yup.mixed().test('fileList', 'Selecione pelo menos um arquivo', (value: any) => {
-    if (value.length === 0) return true;
+    if (value && value.length === 0) return true;
 
     if (value && value.length) {
       const filesArray = Array.from(value);
@@ -65,24 +48,24 @@ const addressSchema = yup.object().shape({
 
 Modal.setAppElement('#__next');
 
-export default function ModalExample({
+export default function ModalComponent({
   isOpen,
   closeModal,
   variant = 'create',
   contactDetails,
-  setContacts,
 }: IModalProps) {
-  const userPhoto = contactDetails?.picture ? contactDetails.picture[0] : '';
-  const [photo, setPhoto] = useState(userPhoto);
+  const userPhoto = contactDetails && contactDetails.picture;
   const isEditVariant = variant === 'edit';
-
+  const [photo, setPhoto] = useState<string>(userPhoto ? userPhoto : '');
   const {
     register,
     watch,
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<IFormData>();
+  } = useForm<IFormData>({
+    resolver: yupResolver(contactSchema),
+  });
 
   const {
     fields: enterpriseFields,
@@ -100,19 +83,6 @@ export default function ModalExample({
     control,
     name: 'telephoneDynamic',
   });
-
-  async function createContact(data: IFormData) {
-    await fetch('http://localhost:3001/contacts', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    closeModal();
-    setContacts((oldState) => [...oldState, data]);
-  }
 
   const handleAddTelephoneField = () => {
     appendTelephone({ telephoneD: '' });
@@ -146,7 +116,7 @@ export default function ModalExample({
     'telephoneDynamic',
   ]);
 
-  const hasPhoto = nameElement[6];
+  const hasPhotoInInput = nameElement[6];
 
   useEffect(() => {
     if (contactDetails && contactDetails.enterpriseDynamic.length > 0) {
@@ -159,20 +129,30 @@ export default function ModalExample({
         handleAddTelephoneField();
       });
     }
-  }, []);
+  }, [contactDetails]);
 
   useEffect(() => {
-    if (hasPhoto && hasPhoto[0]) {
-      setPhoto(URL.createObjectURL(hasPhoto[0]));
+    if (hasPhotoInInput && hasPhotoInInput[0]) {
+      setPhoto(URL.createObjectURL(hasPhotoInInput[0]));
     }
-  }, [hasPhoto]);
+  }, [hasPhotoInInput]);
+
   const onSubmit = handleSubmit((data) =>
-    addressSchema.isValid(data).then((valid) => {
+    contactSchema.isValid(data).then((valid) => {
       if (valid) {
-        toast.success('Contato salvo com sucesso', {
+        toast.success(`${isEditVariant ? 'Contato Editado com sucesso' : 'Contato salvo com sucesso'}`, {
           autoClose: 3000,
         });
-        createContact(data);
+
+        const newContact = {
+          ...data,
+          picture: photo,
+        };
+
+        isEditVariant && contactDetails && contactDetails.id
+          ? editContact(newContact, contactDetails.id)
+          : createContact(newContact);
+        closeModal();
       } else {
         toast.warn('Erro no formulário', {
           autoClose: 3000,
@@ -185,7 +165,9 @@ export default function ModalExample({
   return (
     <Modal isOpen={isOpen} onRequestClose={closeModal} style={customStyles}>
       <Header>
-        <button onClick={closeModal}>X</button>
+        <button type="button" onClick={closeModal}>
+          X
+        </button>
         <h1>{isEditVariant ? 'Editar Contato' : 'Criar contato'}</h1>
         <button form="createUser" type="submit" onClick={onSubmit}>
           Salvar
@@ -195,7 +177,7 @@ export default function ModalExample({
         <Form id="createUser" onSubmit={onSubmit}>
           {photo && (
             <ImageContainer>
-              <img src={photo} alt="Foto da galeria" />
+              <Image width={160} height={160} src={photo} alt="Foto da galeria" />
               <button type="button" onClick={removePhoto}>
                 Remover
               </button>
@@ -207,22 +189,30 @@ export default function ModalExample({
                 <label htmlFor="picture">
                   <UploadSimple size={36} color="#ffffff" weight="light" />
                 </label>
-                <Input register={register} type="file" name="picture" id="picture" />
+                <Input
+                  error={errors.picture ? errors.picture.message : ''}
+                  register={register}
+                  type="file"
+                  name="picture"
+                  id="picture"
+                />
               </div>
               <label htmlFor="picture">Adicionar imagem</label>
             </div>
           )}
 
           <Input
+            error={errors.name ? errors.name.message : ''}
             className={`${nameElement[0] || contactDetails ? 'filled' : ''}`}
             id="name"
             type="text"
             defaultValue={contactDetails && contactDetails.name}
             placeholder="Nome"
             register={register}
-            icon={<User size={20} color="#242424" weight="light" />}
+            icon={<User size={24} color="#242424" weight="light" />}
           />
           <Input
+            error={errors.lastname ? errors.lastname.message : ''}
             className={`${nameElement[1] || contactDetails ? 'filled' : ''}`}
             register={register}
             defaultValue={contactDetails && contactDetails.lastname}
@@ -231,18 +221,20 @@ export default function ModalExample({
             placeholder="Sobrenome"
           />
           <Input
+            error={errors.enterprise ? errors.enterprise.message : ''}
             className={`${nameElement[2] || contactDetails ? 'filled' : ''}`}
             id="enterprise"
             placeholder="Endereço"
             defaultValue={contactDetails && contactDetails.enterprise}
             type="text"
             register={register}
-            icon={<Buildings size={20} color="#242424" weight="light" />}
+            icon={<Buildings size={24} color="#242424" weight="light" />}
           />
 
           {enterpriseFields.map((field, index) => (
             <div style={{ width: '100%', position: 'relative' }} key={field.id}>
               <Input
+                error={undefined}
                 className={`${nameElement[7][index] || contactDetails ? 'filled' : ''}`}
                 register={register}
                 defaultValue={contactDetails && contactDetails.enterpriseDynamic[index].enterpriseD}
@@ -259,18 +251,20 @@ export default function ModalExample({
             Adicionar Endereço
           </button>
           <Input
-            className={`${nameElement[3] || contactDetails ? 'filled' : ''}`}
+            error={errors.telephone ? errors.telephone.message : ''}
+            className={`${nameElement[4] || contactDetails ? 'filled' : ''}`}
             id="telephone"
             defaultValue={contactDetails && contactDetails.telephone}
             placeholder="Telefone"
             type="number"
             register={register}
-            icon={<Phone size={20} color="#242424" weight="light" />}
+            icon={<Phone size={24} color="#242424" weight="light" />}
           />
 
           {telephoneFields.map((field, index) => (
             <div style={{ width: '100%', position: 'relative' }} key={field.id}>
               <Input
+                error={undefined}
                 className={`${nameElement[8][index] || contactDetails ? 'filled' : ''}`}
                 register={register}
                 defaultValue={contactDetails && contactDetails.telephoneDynamic[index].telephoneD}
@@ -287,6 +281,7 @@ export default function ModalExample({
             Adicionar Telefone
           </button>
           <Input
+            error={errors.email ? errors.email.message : ''}
             className={`${nameElement[4] || contactDetails ? 'filled' : ''}`}
             register={register}
             id="email"
@@ -294,9 +289,10 @@ export default function ModalExample({
             placeholder="E-mail"
             type="email"
             {...register('email')}
-            icon={<EnvelopeSimple size={20} color="#242424" weight="light" />}
+            icon={<EnvelopeSimple size={24} color="#242424" weight="light" />}
           />
           <Input
+            error={errors.birthday ? errors.birthday.message : ''}
             className={`${nameElement[5] || contactDetails ? 'filled' : ''}`}
             register={register}
             defaultValue={contactDetails && contactDetails.birthday}
@@ -304,7 +300,7 @@ export default function ModalExample({
             placeholder="Data"
             type="date"
             {...register('birthday')}
-            icon={<Calendar size={20} color="#242424" weight="light" />}
+            icon={<Calendar size={24} color="#242424" weight="light" />}
           />
         </Form>
       </Container>

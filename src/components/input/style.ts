@@ -1,6 +1,10 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-export const Container = styled.div`
+interface IContainerProps {
+  hasError: boolean
+}
+
+export const Container = styled.div<IContainerProps>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8,6 +12,11 @@ export const Container = styled.div`
   width: 100%;
 
   &.filled {
+    .input-group {
+      input[type='date'] {
+        color: #000;
+      }
+    }
     input {
       + label {
           font-size: 0.75rem;
@@ -94,4 +103,32 @@ export const Container = styled.div`
       transition: all 0.2s;
     }
   }
+
+  ${({ hasError }) => css`
+    ${hasError && css`
+      .input-group{
+        input {
+          border-color: #CD0202;
+          &:focus {
+            border-color: #CD0202;
+
+        + label {
+          color:  #CD0202;
+        }
+      }
+        }
+        
+      }
+
+      span {
+        color: #CD0202;
+        display: block;
+        margin-top: 2px;
+      }
+    
+    
+    
+    `}
+  
+  `}
 `;

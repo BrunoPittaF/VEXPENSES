@@ -4,6 +4,23 @@ export const Header = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  button[type="button"] {
+    font-weight: bold;
+    font-size: 1.25rem;
+  }
+
+  button[type="submit"] {
+    color: #fff;
+    background-color: #2842ac;
+    padding: 0.5rem 0.75rem;
+    border-radius: 1rem;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    margin: 0;
+  }
 `;
 
 

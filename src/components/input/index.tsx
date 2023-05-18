@@ -1,11 +1,11 @@
-import { InputHTMLAttributes, ReactNode, useState } from 'react';
+import { InputHTMLAttributes, ReactNode } from 'react';
 import { Container } from './style';
-import { DotsThreeOutlineVertical } from 'phosphor-react';
 
 interface IInputProps extends InputHTMLAttributes<HTMLInputElement> {
   icon?: ReactNode;
   id: string;
   register: any;
+  error: string | undefined;
 }
 
 export default function Input({
@@ -16,13 +16,16 @@ export default function Input({
   register,
   className,
   defaultValue,
+  error,
 }: IInputProps) {
+  const hasError = !!error;
   return (
-    <Container className={className}>
+    <Container hasError={hasError} className={className}>
       {icon}
       <div className="input-group">
         <input defaultValue={defaultValue} {...register(id)} type={type} id={id} />
         <label htmlFor={id}>{placeholder}</label>
+        <span>{error}</span>
       </div>
     </Container>
   );

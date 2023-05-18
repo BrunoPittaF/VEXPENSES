@@ -1,45 +1,33 @@
-import Card from '@/components/card';
-import ModalExample from '@/components/contactDetails';
-import Toastify from '@/components/toastify';
-import { Search } from '@/style/home';
+import Card from '@/components/Card';
+import ModalComponent from '@/components/ModalComponent';
+import Toastify from '@/components/Toastify';
+import { IFormServer } from '@/interfaces';
+import { deleteContact, getContactList } from '@/services/contacts';
+import { Main, Search } from '@/style/home';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
-interface IContactsData {
-  id?: number;
-  name: string;
-  lastname?: string;
-  enterprise?: string;
-  telephone: string;
-  email?: string;
-  birthday?: string;
-  picture?: FileList;
-  telephoneDynamic: {
-    telephoneD: string;
-  }[];
-  enterpriseDynamic: {
-    enterpriseD: string;
-  }[];
-}
 export default function Home() {
-  const [contacts, setContacts] = useState<IContactsData[]>([]);
+  const [contacts, setContacts] = useState<IFormServer[]>([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [activeContact, setActiveContact] = useState<IContactsData | undefined>();
+  const [activeContact, setActiveContact] = useState<IFormServer | undefined>();
   const [variantModal, setVariantModal] = useState<'create' | 'edit'>('create');
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredContacts, setFilteredContacts] = useState<IContactsData[]>([]);
+  const [filteredContacts, setFilteredContacts] = useState<IFormServer[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const response = await fetch('http://localhost:3001/contacts');
-        const contactList = await response.json();
-        setContacts(contactList);
-        setFilteredContacts(contactList);
-      } catch (error) {
-        console.error(error);
-      }
-    })();
-  }, []);
+  function handleDeleteContact(idContact: number) {
+    try {
+      deleteContact(idContact);
+      toast.success('Contato deletado com sucesso', {
+        autoClose: 3000,
+      });
+    } catch (error) {
+      toast.warn('Usuário não pode ser deletado', {
+        autoClose: 3000,
+      });
+      console.error(error);
+    }
+  }
 
   function openModal() {
     setActiveContact(undefined);
@@ -51,7 +39,7 @@ export default function Home() {
     setModalIsOpen(false);
   }
 
-  function openEditModal(data: IContactsData) {
+  function openEditModal(data: IFormServer) {
     setActiveContact(data);
     setVariantModal('edit');
     setModalIsOpen(true);
@@ -63,8 +51,21 @@ export default function Home() {
     setFilteredContacts(filtered);
   }
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const contactList = await getContactList();
+        if (!contactList) return;
+        setContacts(contactList);
+        setFilteredContacts(contactList);
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+  }, [modalIsOpen]);
+
   return (
-    <main>
+    <Main>
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Search
           value={searchTerm}
@@ -78,21 +79,24 @@ export default function Home() {
 
       {filteredContacts.length > 0 &&
         filteredContacts.map((contact) => (
-          <div key={contact.id}>
-            <Card name={contact.name} idContact={contact.id} onClick={() => openEditModal(contact)} />
-          </div>
+          <Card
+            key={contact.id}
+            name={contact.name}
+            idContact={contact.id}
+            deleteContact={handleDeleteContact}
+            onClick={() => openEditModal(contact)}
+          />
         ))}
 
       {modalIsOpen && (
-        <ModalExample
+        <ModalComponent
           variant={variantModal}
           contactDetails={activeContact}
           closeModal={closeModal}
-          setContacts={setContacts}
           isOpen={modalIsOpen}
         />
       )}
       <Toastify />
-    </main>
+    </Main>
   );
 }
